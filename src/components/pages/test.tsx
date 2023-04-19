@@ -1,5 +1,11 @@
-import { OpenAI } from "langchain/llms/openai";
 import { useState } from "react";
+
+import { OpenAI } from "langchain/llms/openai";
+import { CallbackManager } from "langchain/callbacks";
+import { ChatOpenAI } from "langchain/chat_models/openai";
+import { HumanChatMessage } from "langchain/schema";
+
+
 import { Button, Form, Container, Segment, Header, Message } from "semantic-ui-react";
 import styles from '@/styles/Home.module.css'
 
@@ -9,15 +15,34 @@ const model = new OpenAI({
   temperature: 0.9,
 });
 
+const chat = new ChatOpenAI({
+  openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,  // 本番環境ではサーバー側で実行すること
+});
+
 export const TestPage = () => {
   const [loading, setLoading] = useState<boolean>(false)
-  const [text, setText] = useState<string>("猫の飼い方について教えてください")
+  const [text, setText] = useState<string>("「猫は液体」と言われる理由について子供が興味を引くように説明してください")
   const [answer, setAnswer] = useState<string>("")
 
   const onClickButton = async () => {
     setLoading(true);
-    const res = await model.call(text);
-    setAnswer(res);
+    setAnswer("");
+
+    // const res = await model.call(text);
+    // console.log(res);
+    // setAnswer(res.text);
+
+    chat.streaming  = true;
+    chat.callbackManager = CallbackManager.fromHandlers({
+      async handleLLMNewToken(token: string) {
+        setAnswer(prev => prev + token);
+      },
+    });
+    await chat.call([
+      new HumanChatMessage(text),
+    ]);
+    
+
     setLoading(false);
   }
 
