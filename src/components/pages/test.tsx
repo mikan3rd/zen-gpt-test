@@ -86,7 +86,6 @@ export const TestPage = () => {
     setLoading(false);
 
     if (speechRef.current && speechToggle) {
-      console.log(result);
       speechRef.current.text = result?.response;
       speechSynthesis.speak(speechRef.current);
     }
