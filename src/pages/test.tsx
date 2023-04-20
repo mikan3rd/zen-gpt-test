@@ -1,8 +1,8 @@
-import Head from 'next/head'
+import Head from "next/head";
 
-import { TestPage } from '@/components/pages/test'
+import { TestPage } from "@/components/pages/test";
 
- const Test = () => {
+const Test = () => {
   return (
     <>
       <Head>
@@ -10,8 +10,7 @@ import { TestPage } from '@/components/pages/test'
       </Head>
       <TestPage />
     </>
-  )
-}
+  );
+};
 
-
-export default Test
+export default Test;
