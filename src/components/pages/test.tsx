@@ -19,7 +19,7 @@ import {
   Container,
   Segment,
   Header,
-  Message,
+  Feed,
 } from "semantic-ui-react";
 import styles from "@/styles/Test.module.css";
 
@@ -42,18 +42,21 @@ export const TestPage = () => {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>("あなたの名前を教えてください");
-  const [answer, setAnswer] = useState<string>("");
+
+  const [messages, setMessages] = useState<string[]>([]);
 
   useEffect(() => {
     setLoading(true);
 
     chat.callbackManager = CallbackManager.fromHandlers({
       async handleLLMNewToken(token: string) {
-        setAnswer((prev) => prev + token);
+        setMessages((prev) => {
+          const last = prev.pop();
+          return [...prev, last + token];
+        });
       },
     });
 
-    console.log(HumanTemplate);
     const chatPrompt = ChatPromptTemplate.fromPromptMessages([
       SystemMessagePromptTemplate.fromTemplate(HumanTemplate),
       new MessagesPlaceholder("history"),
@@ -73,7 +76,7 @@ export const TestPage = () => {
 
   const onClickButton = async () => {
     setLoading(true);
-    setAnswer("");
+    setMessages((prev) => [...prev, text, ""]);
 
     // const res = await model.call(text);
     // console.log(res);
@@ -89,12 +92,12 @@ export const TestPage = () => {
   return (
     <>
       <Container className={styles.customContainer}>
-        <Header>Zen GPT</Header>
+        <Header>お仕事引き継ぎAI 簡易デモ</Header>
         <Segment>
           <Form>
             <Form.Field>
               <Form.TextArea
-                label={"質問を入力してください"}
+                label={"テキストを入力してください"}
                 onChange={(e) => setText(e.target.value)}
                 value={text}
                 disabled={loading}
@@ -106,7 +109,13 @@ export const TestPage = () => {
           </Form>
         </Segment>
         <Segment>
-          <Message header="回答" content={answer} />
+          <Feed>
+            {messages.map((message, index) => {
+              const image =
+                index % 2 === 0 ? "/aozora-saiko.png" : "zenki-gen.png";
+              return <Feed.Event key={index} summary={message} image={image} />;
+            })}
+          </Feed>
         </Segment>
       </Container>
     </>
