@@ -18,6 +18,7 @@ import {
   Segment,
   Header,
   Feed,
+  Checkbox,
 } from "semantic-ui-react";
 import styles from "@/styles/Test.module.css";
 
@@ -33,6 +34,7 @@ export const TestPage = () => {
   const chainRef = useRef<ConversationChain>();
   const speechRef = useRef<SpeechSynthesisUtterance>();
 
+  const [speechToggle, setSpeechToggle] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>("あなたの名前を教えてください");
 
@@ -66,6 +68,7 @@ export const TestPage = () => {
 
     const uttr = new SpeechSynthesisUtterance();
     uttr.lang = "ja-JP";
+    uttr.volume = 0.2;
     speechRef.current = uttr;
 
     setLoading(false);
@@ -82,7 +85,7 @@ export const TestPage = () => {
     setText("");
     setLoading(false);
 
-    if (speechRef.current) {
+    if (speechRef.current && speechToggle) {
       console.log(result);
       speechRef.current.text = result?.response;
       speechSynthesis.speak(speechRef.current);
@@ -93,11 +96,17 @@ export const TestPage = () => {
     <>
       <Container className={styles.customContainer}>
         <Header>お仕事引き継ぎAI 簡易デモ</Header>
+        <Checkbox
+          toggle
+          label="音声読み上げ"
+          checked={speechToggle}
+          onChange={() => setSpeechToggle((prev) => !prev)}
+        />
         <Segment>
           <Form>
             <Form.Field>
               <Form.TextArea
-                label={"テキストを入力してください"}
+                label={"チャットを送ると前木 弦さん（仮）が答えてくれます"}
                 onChange={(e) => setText(e.target.value)}
                 value={text}
                 disabled={loading}
