@@ -10,7 +10,8 @@ import { Button, Form, Container, Segment, Header, Message } from "semantic-ui-r
 import styles from '@/styles/Home.module.css'
 
 
-const model = new OpenAI({ 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const model = new OpenAI({
   openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,  // 本番環境ではサーバー側で実行すること
   temperature: 0.9,
 });
@@ -41,7 +42,7 @@ export const TestPage = () => {
     await chat.call([
       new HumanChatMessage(text),
     ]);
-    
+
 
     setLoading(false);
   }
