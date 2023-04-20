@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
-import { OpenAI } from "langchain/llms/openai";
 import { CallbackManager } from "langchain/callbacks";
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { HumanChatMessage } from "langchain/schema";
 import { ConversationChain } from "langchain/chains";
 import {
   ChatPromptTemplate,
@@ -25,12 +23,6 @@ import styles from "@/styles/Test.module.css";
 
 import { HumanTemplate } from "@/utlils/template";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const model = new OpenAI({
-  openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, // 本番環境ではサーバー側で実行すること
-  temperature: 0.9,
-});
-
 const chat = new ChatOpenAI({
   openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY, // 本番環境ではサーバー側で実行すること
   temperature: 0,
@@ -39,6 +31,7 @@ const chat = new ChatOpenAI({
 
 export const TestPage = () => {
   const chainRef = useRef<ConversationChain>();
+  const speechRef = useRef<SpeechSynthesisUtterance>();
 
   const [loading, setLoading] = useState<boolean>(false);
   const [text, setText] = useState<string>("あなたの名前を教えてください");
@@ -71,6 +64,10 @@ export const TestPage = () => {
 
     chainRef.current = chain;
 
+    const uttr = new SpeechSynthesisUtterance();
+    uttr.lang = "ja-JP";
+    speechRef.current = uttr;
+
     setLoading(false);
   }, []);
 
@@ -78,15 +75,18 @@ export const TestPage = () => {
     setLoading(true);
     setMessages((prev) => [...prev, text, ""]);
 
-    // const res = await model.call(text);
-    // console.log(res);
-    // setAnswer(res.text);
-
-    await chainRef?.current?.call({
+    const result = await chainRef?.current?.call({
       input: text,
     });
 
+    setText("");
     setLoading(false);
+
+    if (speechRef.current) {
+      console.log(result);
+      speechRef.current.text = result?.response;
+      speechSynthesis.speak(speechRef.current);
+    }
   };
 
   return (
